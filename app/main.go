@@ -1,12 +1,21 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
+
+type GithubGrass struct {
+	count string `json:"count"`
+	date  string `json:"date"`
+}
+type GithubGrasses []GithubGrass
 
 func main() {
 	router := gin.Default()
@@ -26,11 +35,19 @@ func main() {
 		svg := re.Find([]byte(string(byteArray)))
 		re2 := regexp.MustCompile(`<rect.*?\/>`)
 		rect := re2.FindAll([]byte(string(svg)), -1)
-		var arr []byte
+		// var arr []GithubGrass
+		gl := GithubGrasses{}
 		for _, v := range rect {
-			arr = append(arr, v...)
+			g := GithubGrass{}
+			g.count = strings.Split(strings.Split(string(v), " ")[7], "\"")[1]
+			g.date = strings.Split(strings.Split(string(v), " ")[8], "\"")[1]
+			gl = append(gl, g)
 		}
-		c.String(http.StatusOK, string(arr))
+		fmt.Println(gl)
+		result, _ := json.Marshal(gl)
+		fmt.Printf("[+] %s\n", string(result))
+
+		c.String(http.StatusOK, string(result))
 	})
 
 	// However, this one will match /user/john/ and also /user/john/send
