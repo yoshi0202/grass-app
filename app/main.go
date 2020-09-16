@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -27,10 +26,11 @@ func main() {
 		svg := re.Find([]byte(string(byteArray)))
 		re2 := regexp.MustCompile(`<rect.*?\/>`)
 		rect := re2.FindAll([]byte(string(svg)), -1)
+		var arr []byte
 		for _, v := range rect {
-			fmt.Println(string(v))
+			arr = append(arr, v...)
 		}
-		c.String(http.StatusOK, string(svg))
+		c.String(http.StatusOK, string(arr))
 	})
 
 	// However, this one will match /user/john/ and also /user/john/send
