@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -12,9 +11,10 @@ import (
 )
 
 type GithubGrass struct {
-	count string `json:"count"`
-	date  string `json:"date"`
+	Count string `json:"count"`
+	Date  string `json:"date"`
 }
+
 type GithubGrasses []GithubGrass
 
 func main() {
@@ -22,8 +22,8 @@ func main() {
 
 	// This handler will match /user/john but will not match /user/ or /user
 	router.GET("/user/:name", func(c *gin.Context) {
-		// name := c.Param("name")
-		url := "https://github.com/users/yoshi0202/contributions"
+		name := c.Param("name")
+		url := "https://github.com/users/" + name + "/contributions"
 		req, _ := http.NewRequest("GET", url, nil)
 
 		client := new(http.Client)
@@ -35,17 +35,14 @@ func main() {
 		svg := re.Find([]byte(string(byteArray)))
 		re2 := regexp.MustCompile(`<rect.*?\/>`)
 		rect := re2.FindAll([]byte(string(svg)), -1)
-		// var arr []GithubGrass
 		gl := GithubGrasses{}
 		for _, v := range rect {
 			g := GithubGrass{}
-			g.count = strings.Split(strings.Split(string(v), " ")[7], "\"")[1]
-			g.date = strings.Split(strings.Split(string(v), " ")[8], "\"")[1]
+			g.Count = strings.Split(strings.Split(string(v), " ")[7], "\"")[1]
+			g.Date = strings.Split(strings.Split(string(v), " ")[8], "\"")[1]
 			gl = append(gl, g)
 		}
-		fmt.Println(gl)
 		result, _ := json.Marshal(gl)
-		fmt.Printf("[+] %s\n", string(result))
 
 		c.String(http.StatusOK, string(result))
 	})
