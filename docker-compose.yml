@@ -6,4 +6,4 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./app:/opt
+      - ./app:/go/src/github.com/yoshi0202/grass-app/app
