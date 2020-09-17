@@ -2,12 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
-	"regexp"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/yoshi0202/grass-app/app/src/services"
 )
 
 type GithubGrass struct {
@@ -22,21 +21,11 @@ func main() {
 
 	// This handler will match /user/john but will not match /user/ or /user
 	router.GET("/user/:name", func(c *gin.Context) {
-		name := c.Param("name")
-		url := "https://github.com/users/" + name + "/contributions"
-		req, _ := http.NewRequest("GET", url, nil)
-
-		client := new(http.Client)
-		resp, _ := client.Do(req)
-		defer resp.Body.Close()
-
-		byteArray, _ := ioutil.ReadAll(resp.Body)
-		re := regexp.MustCompile(`<svg(?: [\s\S]+?)?>[\s\S]*?<\/svg>`)
-		svg := re.Find([]byte(string(byteArray)))
-		re2 := regexp.MustCompile(`<rect.*?\/>`)
-		rect := re2.FindAll([]byte(string(svg)), -1)
+		apiRes := services.Get(c.Param("name"))
+		svgTags := services.FindSvgTag(`<svg(?: [\s\S]+?)?>[\s\S]*?<\/svg>`, apiRes)
+		rectArray := services.FindAllRectTag(`<rect.*?\/>`, svgTags)
 		gl := GithubGrasses{}
-		for _, v := range rect {
+		for _, v := range rectArray {
 			g := GithubGrass{}
 			g.Count = strings.Split(strings.Split(string(v), " ")[7], "\"")[1]
 			g.Date = strings.Split(strings.Split(string(v), " ")[8], "\"")[1]
