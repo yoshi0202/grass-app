@@ -7,3 +7,4 @@ services:
       - "8080:8080"
     volumes:
       - ./app:/go/src/github.com/yoshi0202/grass-app/app
+    working_dir: /go/src/github.com/yoshi0202/grass-app/app/src
