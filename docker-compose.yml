@@ -8,3 +8,10 @@ services:
     volumes:
       - ./app:/go/src/github.com/yoshi0202/grass-app/app
     working_dir: /go/src/github.com/yoshi0202/grass-app/app/src
+  db:
+    container_name: db
+    image: mysql:8.0.21
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3306:3306"
