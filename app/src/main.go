@@ -1,20 +1,33 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/yoshi0202/grass-app/app/src/constant"
 	"github.com/yoshi0202/grass-app/app/src/services"
 	"github.com/yoshi0202/grass-app/app/src/services/github"
+	"gorm.io/gorm"
 )
+
+type User struct {
+	gorm.Model
+	Id   uint
+	Name string
+}
 
 func main() {
 	router := gin.Default()
 
 	// root
 	router.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "root page")
+		var user User
+		db := services.ConnectGorm()
+		db.Create(&User{Name: "yoshiki"})
+		db.First(&user, 2)
+		fmt.Println(user.Name)
+		c.String(http.StatusOK, user.Name)
 	})
 
 	router.GET("/login", func(c *gin.Context) {
