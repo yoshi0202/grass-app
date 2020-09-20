@@ -8,26 +8,17 @@ import (
 	"github.com/yoshi0202/grass-app/app/src/constant"
 	"github.com/yoshi0202/grass-app/app/src/services"
 	"github.com/yoshi0202/grass-app/app/src/services/github"
-	"gorm.io/gorm"
+	"github.com/yoshi0202/grass-app/app/src/services/users"
 )
-
-type User struct {
-	gorm.Model
-	Id   uint
-	Name string
-}
 
 func main() {
 	router := gin.Default()
 
 	// root
 	router.GET("/", func(c *gin.Context) {
-		var user User
-		db := services.ConnectGorm()
-		db.Create(&User{Name: "yoshiki"})
-		db.First(&user, 2)
-		fmt.Println(user.Name)
-		c.String(http.StatusOK, user.Name)
+		user := users.FindAllUser()
+		fmt.Println(user)
+		c.String(http.StatusOK, "Ok")
 	})
 
 	router.GET("/login", func(c *gin.Context) {
@@ -49,10 +40,6 @@ func main() {
 	router.POST("/signup", func(c *gin.Context) {
 		c.String(http.StatusOK, "signup")
 	})
-
-	// router.GET("/user/:id", func(c *gin.Context) {
-	// 	c.String(http.StatusOK, "user id : "+string(c.Param("id")))
-	// })
 
 	router.GET("/timeline", func(c *gin.Context) {
 		c.String(http.StatusOK, "timeline page")
