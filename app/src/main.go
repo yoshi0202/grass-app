@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,9 +15,8 @@ func main() {
 
 	// root
 	router.GET("/", func(c *gin.Context) {
-		user := users.FindAllUser()
-		fmt.Println(user)
-		c.String(http.StatusOK, "Ok")
+		user := users.FindAll()
+		c.String(http.StatusOK, user)
 	})
 
 	router.GET("/login", func(c *gin.Context) {
@@ -59,7 +57,7 @@ func main() {
 		apiRes := grass.GetGrass(c.Param("name"))
 		svgTags := services.FindSvgTag(con.SvgTag, apiRes)
 		rectArray := services.FindAllRectTag(con.RectTag, svgTags)
-		grasses := grass.CreateGrasses(grass.GithubGrasses{}, rectArray)
+		grasses := grass.CreateGrasses(grass.Grasses{}, rectArray)
 		c.String(http.StatusOK, grasses)
 	})
 

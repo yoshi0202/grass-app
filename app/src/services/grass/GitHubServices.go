@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/yoshi0202/grass-app/app/src/constant"
+	"github.com/yoshi0202/grass-app/app/src/services"
 )
 
 type Grass struct {
@@ -19,14 +20,14 @@ type Grass struct {
 
 type Grasses []Grass
 
-func FindGrass(param int) *Grass {
+func Find(param int) *Grass {
 	g := new(Grass)
 	db := services.ConnectGorm()
 	db.First(&g, param)
 	return g
 }
 
-func FindAllUser() *Grasses {
+func FindAll() *Grasses {
 	g := new(Grasses)
 	db := services.ConnectGorm()
 	db.Find(&g)

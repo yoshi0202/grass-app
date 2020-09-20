@@ -1,6 +1,8 @@
 package users
 
 import (
+	"encoding/json"
+
 	"github.com/yoshi0202/grass-app/app/src/services"
 	"gorm.io/gorm"
 )
@@ -13,16 +15,18 @@ type User struct {
 
 type Users []User
 
-func FindUser(param int) *User {
+func Find(param int) string {
 	u := new(User)
 	db := services.ConnectGorm()
 	db.First(&u, param)
-	return u
+	json, _ := json.Marshal(u)
+	return string(json)
 }
 
-func FindAllUser() *Users {
+func FindAll() string {
 	u := new(Users)
 	db := services.ConnectGorm()
 	db.Find(&u)
-	return u
+	json, _ := json.Marshal(u)
+	return string(json)
 }
