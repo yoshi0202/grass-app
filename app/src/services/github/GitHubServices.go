@@ -6,15 +6,32 @@ import (
 	"net/http"
 	"strings"
 
+	"gorm.io/gorm"
+
 	"github.com/yoshi0202/grass-app/app/src/constant"
 )
 
-type GithubGrass struct {
+type Grass struct {
+	gorm.Model
 	Count string `json:"count"`
 	Date  string `json:"date"`
 }
 
-type GithubGrasses []GithubGrass
+type Grasses []Grass
+
+func FindGrass(param int) *Grass {
+	g := new(Grass)
+	db := services.ConnectGorm()
+	db.First(&g, param)
+	return g
+}
+
+func FindAllUser() *Grasses {
+	g := new(Grasses)
+	db := services.ConnectGorm()
+	db.Find(&g)
+	return g
+}
 
 func GetGrass(param string) []byte {
 	c := constant.NewConst()
@@ -29,9 +46,9 @@ func GetGrass(param string) []byte {
 	return byteArray
 }
 
-func CreateGrasses(array GithubGrasses, apiRes [][]byte) string {
+func CreateGrasses(array Grasses, apiRes [][]byte) string {
 	for _, v := range apiRes {
-		g := GithubGrass{}
+		g := Grass{}
 		g.Count = strings.Split(strings.Split(string(v), " ")[7], "\"")[1]
 		g.Date = strings.Split(strings.Split(string(v), " ")[8], "\"")[1]
 		array = append(array, g)
