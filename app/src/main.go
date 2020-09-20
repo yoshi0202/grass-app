@@ -4,8 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yoshi0202/grass-app/app/src/constant"
-	"github.com/yoshi0202/grass-app/app/src/services"
 	"github.com/yoshi0202/grass-app/app/src/services/grass"
 	"github.com/yoshi0202/grass-app/app/src/services/users"
 )
@@ -53,12 +51,8 @@ func main() {
 
 	// This handler will match /user/john but will not match /user/ or /user
 	router.GET("/user/:name", func(c *gin.Context) {
-		con := constant.NewConst()
-		apiRes := grass.GetGrass(c.Param("name"))
-		svgTags := services.FindSvgTag(con.SvgTag, apiRes)
-		rectArray := services.FindAllRectTag(con.RectTag, svgTags)
-		grasses := grass.CreateGrasses(grass.Grasses{}, rectArray)
-		c.String(http.StatusOK, grasses)
+		grass := grass.FindByGithub(c.Param("name"))
+		c.String(http.StatusOK, grass)
 	})
 
 	// However, this one will match /user/john/ and also /user/john/send

@@ -34,6 +34,15 @@ func FindAll() *Grasses {
 	return g
 }
 
+func FindByGithub(name string) string {
+	con := constant.NewConst()
+	apiRes := GetGrass(name)
+	svgTags := services.FindSvgTag(con.SvgTag, apiRes)
+	rectArray := services.FindAllRectTag(con.RectTag, svgTags)
+	grasses := CreateGrasses(Grasses{}, rectArray)
+	return string(grasses)
+}
+
 func GetGrass(param string) []byte {
 	c := constant.NewConst()
 	url := c.Url + param + "/contributions"
@@ -47,7 +56,7 @@ func GetGrass(param string) []byte {
 	return byteArray
 }
 
-func CreateGrasses(array Grasses, apiRes [][]byte) string {
+func CreateGrasses(array Grasses, apiRes [][]byte) []byte {
 	for _, v := range apiRes {
 		g := Grass{}
 		g.Count = strings.Split(strings.Split(string(v), " ")[7], "\"")[1]
@@ -55,5 +64,5 @@ func CreateGrasses(array Grasses, apiRes [][]byte) string {
 		array = append(array, g)
 	}
 	result, _ := json.Marshal(array)
-	return string(result)
+	return result
 }
