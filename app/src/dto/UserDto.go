@@ -3,6 +3,7 @@ package dto
 import (
 	"encoding/json"
 
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -27,7 +28,7 @@ func (u *User) ToJSON() string {
 	return string(json)
 }
 
-func (u *Users) ToJSON() string {
+func (u *Users) ToJSON() datatypes.JSON {
 	json, _ := json.Marshal(u)
-	return string(json)
+	return json
 }
