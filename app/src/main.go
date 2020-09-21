@@ -4,7 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/yoshi0202/grass-app/app/src/dto"
+	"github.com/yoshi0202/grass-app/app/src/services"
 	"github.com/yoshi0202/grass-app/app/src/services/grass"
+	"github.com/yoshi0202/grass-app/app/src/services/usergrassess"
 	"github.com/yoshi0202/grass-app/app/src/services/users"
 )
 
@@ -14,7 +17,16 @@ func main() {
 	// root
 	router.GET("/", func(c *gin.Context) {
 		user := users.FindAll()
-		c.String(http.StatusOK, user)
+		c.String(http.StatusOK, user.ToJSON())
+	})
+
+	router.GET("/migrate", func(c *gin.Context) {
+		user := dto.NewUser()
+		grass := new(grass.Grass)
+		userGrass := new(usergrassess.UserGrassess)
+		db := services.ConnectGorm()
+		db.AutoMigrate(user, grass, userGrass)
+		c.String(http.StatusOK, "migrate ok")
 	})
 
 	router.GET("/login", func(c *gin.Context) {
@@ -50,10 +62,11 @@ func main() {
 	})
 
 	// This handler will match /user/john but will not match /user/ or /user
-	router.GET("/user/:name", func(c *gin.Context) {
-		grass := grass.FindByGithub(c.Param("name"))
-		c.String(http.StatusOK, grass)
-	})
+	// router.GET("/user/:name", func(c *gin.Context) {
+	// 	grassJSON := grass.FindByGithub(c.Param("name"))
+	// 	grass.FindOrCreate(c.Param("name"), grassJSON)
+	// 	c.String(http.StatusOK, grassJSON)
+	// })
 
 	// However, this one will match /user/john/ and also /user/john/send
 	// If no other routers match /user/john, it will redirect to /user/john/

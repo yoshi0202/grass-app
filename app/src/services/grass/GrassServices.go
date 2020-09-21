@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 
 	"github.com/yoshi0202/grass-app/app/src/constant"
@@ -14,8 +15,11 @@ import (
 
 type Grass struct {
 	gorm.Model
-	Count string `json:"count"`
-	Date  string `json:"date"`
+	Id        string         `json:"id"`
+	GitHubID  string         `json:"githubId"`
+	Count     string         `json:"count"`
+	Date      string         `json:"date"`
+	CountDate datatypes.JSON `json:"countDate"`
 }
 
 type Grasses []Grass
@@ -34,13 +38,25 @@ func FindAll() *Grasses {
 	return g
 }
 
-func FindByGithub(name string) string {
+func FindOrCreate(githubId string, json []byte) string {
+	if len(json) == 0 {
+		return ""
+	}
+	g := new(Grass)
+	db := services.ConnectGorm()
+	g.GitHubID = githubId
+	g.CountDate = datatypes.JSON([]byte(json))
+	db.FirstOrCreate(&g, Grass{GitHubID: githubId})
+	return "ok"
+}
+
+func FindByGithub(name string) []byte {
 	con := constant.NewConst()
 	apiRes := GetGrass(name)
 	svgTags := services.FindSvgTag(con.SvgTag, apiRes)
 	rectArray := services.FindAllRectTag(con.RectTag, svgTags)
 	grasses := CreateGrasses(Grasses{}, rectArray)
-	return string(grasses)
+	return grasses
 }
 
 func GetGrass(param string) []byte {
