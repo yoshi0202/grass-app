@@ -1,62 +1,47 @@
 package grass
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"strings"
 
-	"gorm.io/datatypes"
-	"gorm.io/gorm"
-
 	"github.com/yoshi0202/grass-app/app/src/constant"
+	"github.com/yoshi0202/grass-app/app/src/dto"
 	"github.com/yoshi0202/grass-app/app/src/services"
 )
 
-type Grass struct {
-	gorm.Model
-	Id        string         `json:"id"`
-	GitHubID  string         `json:"githubId"`
-	Count     string         `json:"count"`
-	Date      string         `json:"date"`
-	CountDate datatypes.JSON `json:"countDate"`
-}
-
-type Grasses []Grass
-
-func Find(param int) *Grass {
-	g := new(Grass)
+func Find(param int) *dto.Grass {
+	g := dto.NewGrass()
 	db := services.ConnectGorm()
 	db.First(&g, param)
 	return g
 }
 
-func FindAll() *Grasses {
-	g := new(Grasses)
+func FindAll() *dto.Grasses {
+	g := dto.NewGrasses()
 	db := services.ConnectGorm()
 	db.Find(&g)
 	return g
 }
 
-func FindOrCreate(githubId string, json []byte) string {
-	if len(json) == 0 {
-		return ""
+func FindOrCreate(githubId string, grass *dto.Grass) *dto.Grass {
+	if len(grass.CountDate) < 3 {
+		return grass
 	}
-	g := new(Grass)
 	db := services.ConnectGorm()
-	g.GitHubID = githubId
-	g.CountDate = datatypes.JSON([]byte(json))
-	db.FirstOrCreate(&g, Grass{GitHubID: githubId})
-	return "ok"
+	db.FirstOrCreate(&grass, dto.Grass{GitHubID: githubId})
+	return grass
 }
 
-func FindByGithub(name string) []byte {
+func FindByGithub(name string) *dto.Grass {
+	gs := dto.NewGrass()
+	gs.GitHubID = name
 	con := constant.NewConst()
 	apiRes := GetGrass(name)
 	svgTags := services.FindSvgTag(con.SvgTag, apiRes)
 	rectArray := services.FindAllRectTag(con.RectTag, svgTags)
-	grasses := CreateGrasses(Grasses{}, rectArray)
-	return grasses
+	grass := CreateGrasses(gs, rectArray, name)
+	return grass
 }
 
 func GetGrass(param string) []byte {
@@ -72,13 +57,14 @@ func GetGrass(param string) []byte {
 	return byteArray
 }
 
-func CreateGrasses(array Grasses, apiRes [][]byte) []byte {
+func CreateGrasses(gs *dto.Grass, apiRes [][]byte, name string) *dto.Grass {
+	gitHubs := dto.NewGitHubs()
 	for _, v := range apiRes {
-		g := Grass{}
+		g := dto.NewGitHub()
 		g.Count = strings.Split(strings.Split(string(v), " ")[7], "\"")[1]
 		g.Date = strings.Split(strings.Split(string(v), " ")[8], "\"")[1]
-		array = append(array, g)
+		*gitHubs = append(*gitHubs, *g)
 	}
-	result, _ := json.Marshal(array)
-	return result
+	gs.CountDate = gitHubs.ToJSON()
+	return gs
 }

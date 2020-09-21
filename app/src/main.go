@@ -17,12 +17,12 @@ func main() {
 	// root
 	router.GET("/", func(c *gin.Context) {
 		user := users.FindAll()
-		c.String(http.StatusOK, user.ToJSON())
+		c.String(http.StatusOK, string(user.ToJSON()))
 	})
 
 	router.GET("/migrate", func(c *gin.Context) {
 		user := dto.NewUser()
-		grass := new(grass.Grass)
+		grass := dto.NewGrass()
 		userGrass := new(usergrassess.UserGrassess)
 		db := services.ConnectGorm()
 		db.AutoMigrate(user, grass, userGrass)
@@ -62,11 +62,11 @@ func main() {
 	})
 
 	// This handler will match /user/john but will not match /user/ or /user
-	// router.GET("/user/:name", func(c *gin.Context) {
-	// 	grassJSON := grass.FindByGithub(c.Param("name"))
-	// 	grass.FindOrCreate(c.Param("name"), grassJSON)
-	// 	c.String(http.StatusOK, grassJSON)
-	// })
+	router.GET("/user/:name", func(c *gin.Context) {
+		g := grass.FindByGithub(c.Param("name"))
+		grass.FindOrCreate(c.Param("name"), g)
+		c.String(http.StatusOK, g.ToJSON())
+	})
 
 	// However, this one will match /user/john/ and also /user/john/send
 	// If no other routers match /user/john, it will redirect to /user/john/
