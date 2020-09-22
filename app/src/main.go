@@ -1,18 +1,23 @@
 package main
 
 import (
+	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/yoshi0202/grass-app/app/src/dto"
 	"github.com/yoshi0202/grass-app/app/src/services"
 	"github.com/yoshi0202/grass-app/app/src/services/grass"
+	"github.com/yoshi0202/grass-app/app/src/services/session"
 	"github.com/yoshi0202/grass-app/app/src/services/usergrassess"
 	"github.com/yoshi0202/grass-app/app/src/services/users"
 )
 
 func main() {
 	router := gin.Default()
+	router.LoadHTMLGlob("*.tmpl")
 
 	// root
 	router.GET("/", func(c *gin.Context) {
@@ -30,35 +35,34 @@ func main() {
 	})
 
 	router.GET("/login", func(c *gin.Context) {
-		c.String(http.StatusOK, "login page")
-	})
-
-	router.POST("/login", func(c *gin.Context) {
-		c.String(http.StatusOK, "create session")
+		c.HTML(http.StatusOK, "login.tmpl", gin.H{})
 	})
 
 	router.DELETE("/logout", func(c *gin.Context) {
 		c.String(http.StatusOK, "logout")
 	})
 
-	router.GET("/signup", func(c *gin.Context) {
-		c.String(http.StatusOK, "signup page")
-	})
-
-	router.POST("/signup", func(c *gin.Context) {
-		c.String(http.StatusOK, "signup")
-	})
-
 	router.GET("/timeline", func(c *gin.Context) {
 		c.String(http.StatusOK, "timeline page")
 	})
 
-	router.GET("/regist", func(c *gin.Context) {
-		c.String(http.StatusOK, "enter github id pages")
-	})
+	router.GET("/github/callback", func(c *gin.Context) {
+		to := "https://github.com/login/oauth/access_token"
+		val := url.Values{}
+		val.Add("client_id", "6275811b400983aaba52")
+		val.Add("client_secret", "a9a4d5932feb8b0261912e481ab862a979922a2a")
+		val.Add("redirect_uri", "http://localhost:8080/github/callback")
+		val.Add("code", c.Query("code"))
+		req, _ := http.NewRequest("POST", to, strings.NewReader(val.Encode()))
 
-	router.POST("/regist", func(c *gin.Context) {
-		c.String(http.StatusOK, "regist user")
+		client := new(http.Client)
+		resp, _ := client.Do(req)
+		defer resp.Body.Close()
+
+		byteArray, _ := ioutil.ReadAll(resp.Body)
+		oauthArray := services.CreateRegexp(`[&=]`).Split(string(byteArray), -1)
+		session.FindByGithub(string("token " + oauthArray[1]))
+		c.Redirect(301, "/timeline")
 	})
 
 	// This handler will match /user/john but will not match /user/ or /user
