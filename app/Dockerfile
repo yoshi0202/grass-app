@@ -3,4 +3,5 @@ RUN go get -u -t -v github.com/gin-gonic/gin
 RUN go get -u -t -v gorm.io/gorm
 RUN go get -u -t -v gorm.io/driver/mysql
 RUN go get -u -t -v gorm.io/datatypes
+RUN go get -u -t -v github.com/joho/godotenv 
 RUN mkdir -p /go/src/github.com/yoshi0202/grass-app/app
