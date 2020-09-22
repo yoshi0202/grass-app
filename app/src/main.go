@@ -1,10 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
 	"net/http"
-	"net/url"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/yoshi0202/grass-app/app/src/dto"
@@ -47,21 +44,8 @@ func main() {
 	})
 
 	router.GET("/github/callback", func(c *gin.Context) {
-		to := "https://github.com/login/oauth/access_token"
-		val := url.Values{}
-		val.Add("client_id", "6275811b400983aaba52")
-		val.Add("client_secret", "a9a4d5932feb8b0261912e481ab862a979922a2a")
-		val.Add("redirect_uri", "http://localhost:8080/github/callback")
-		val.Add("code", c.Query("code"))
-		req, _ := http.NewRequest("POST", to, strings.NewReader(val.Encode()))
-
-		client := new(http.Client)
-		resp, _ := client.Do(req)
-		defer resp.Body.Close()
-
-		byteArray, _ := ioutil.ReadAll(resp.Body)
-		oauthArray := services.CreateRegexp(`[&=]`).Split(string(byteArray), -1)
-		session.FindByGithub(string("token " + oauthArray[1]))
+		token := session.GetAccessToken(c.Query("code"))
+		session.FindByGithub("token " + token)
 		c.Redirect(301, "/timeline")
 	})
 

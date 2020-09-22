@@ -1,13 +1,18 @@
 package session
 
 import (
-	"fmt"
+	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/yoshi0202/grass-app/app/src/constant"
+	"github.com/yoshi0202/grass-app/app/src/dto"
+	"github.com/yoshi0202/grass-app/app/src/services"
 )
 
 func FindByGithub(token string) []byte {
-	to := "https://api.github.com/user"
+	to := constant.NewConst().GetUserAPIURL
 	req, _ := http.NewRequest("GET", to, nil)
 	req.Header.Set("Authorization", token)
 
@@ -16,6 +21,17 @@ func FindByGithub(token string) []byte {
 	defer resp.Body.Close()
 
 	byteArray, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(byteArray))
 	return byteArray
+}
+
+func GetAccessToken(code string) string {
+	to := constant.NewConst().AccessTokenURL
+	oauth := dto.NewOAuth(code)
+	json, _ := json.Marshal(oauth)
+	resp, _ := http.Post(to, "application/json", bytes.NewBuffer(json))
+	defer resp.Body.Close()
+
+	byteArray, _ := ioutil.ReadAll(resp.Body)
+	accessToken := services.CreateRegexp(`[&=]`).Split(string(byteArray), -1)[1]
+	return accessToken
 }
