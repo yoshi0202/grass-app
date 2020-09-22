@@ -28,10 +28,10 @@ func NewConst() *Constant {
 	c.SvgTag = `<svg(?: [\s\S]+?)?>[\s\S]*?<\/svg>`
 	c.RectTag = `<rect.*?\/>`
 	c.Url = "https://github.com/users/"
-	c.DbUser = "root"
-	c.DbPassword = "password"
-	c.DbProtocol = "tcp(db:3306)"
-	c.DbName = "grass_app"
+	c.DbUser = os.Getenv("DB_USER")
+	c.DbPassword = os.Getenv("DB_PASS")
+	c.DbProtocol = os.Getenv("DB_PROTOCOL")
+	c.DbName = os.Getenv("DB_NAME")
 	c.AccessTokenURL = os.Getenv("ACCESS_TOKEN_URL")
 	c.GetUserAPIURL = os.Getenv("GET_USER_API_URL")
 	c.ClientID = os.Getenv("CLIENT_ID")
