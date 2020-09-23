@@ -2,21 +2,21 @@ package usergrassess
 
 import (
 	"encoding/json"
+	"fmt"
 
+	"github.com/yoshi0202/grass-app/app/src/dto"
 	"github.com/yoshi0202/grass-app/app/src/services"
-	"gorm.io/gorm"
 )
 
-type UserGrass struct {
-	gorm.Model
-	UserId  uint   `json:"userId"`
-	GrassId string `json:"grassId"`
+func Create(userID string, gr *dto.Grass) {
+	ug := dto.NewUserGrass()
+	ug.LoginID = userID
+	ug.GrassID = gr.ID
+	db := services.ConnectGorm()
+	db.Create(&ug)
 }
-
-type UserGrassess []UserGrass
-
 func FindByUserId(param int) string {
-	ug := new(UserGrassess)
+	ug := dto.NewUserGrass()
 	db := services.ConnectGorm()
 	db.Where("user_id = ?", param).Find(&ug)
 	json, _ := json.Marshal(ug)
@@ -24,9 +24,21 @@ func FindByUserId(param int) string {
 }
 
 func FindByGrassId(param int) string {
-	ug := new(UserGrassess)
+	ug := dto.NewUserGrass()
 	db := services.ConnectGorm()
 	db.Where("grass_id = ?", param).Find(&ug)
 	json, _ := json.Marshal(ug)
 	return string(json)
+}
+
+func FindAllByUserId(param string) *dto.UserGrasses {
+	ug := dto.NewUserGrasses()
+	db := services.ConnectGorm()
+	db.Where("login_id = ?", param).Find(&ug)
+	for _, v := range *ug {
+		fmt.Println(v.LoginID)
+		fmt.Println(v.GrassID)
+	}
+
+	return ug
 }

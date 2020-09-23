@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -29,7 +30,7 @@ func main() {
 	router.GET("/migrate", func(c *gin.Context) {
 		user := dto.NewUser()
 		grass := dto.NewGrass()
-		userGrass := new(usergrassess.UserGrassess)
+		userGrass := dto.NewUserGrass()
 		db := services.ConnectGorm()
 		db.AutoMigrate(user, grass, userGrass)
 		c.String(http.StatusOK, "migrate ok")
@@ -46,17 +47,46 @@ func main() {
 	})
 
 	router.GET("/timeline", checkCookie(), func(c *gin.Context) {
+		u, _ := c.Get("userId")
+		usergrassess.FindAllByUserId(u.(string))
 		c.String(http.StatusOK, "timeline page")
+	})
+
+	// router.POST("/timeline/regist", checkCookie(), func(c *gin.Context) {
+	router.POST("/timeline/regist", func(c *gin.Context) {
+		ut := dto.NewUserTimeline()
+		c.Bind(ut)
+		// u, _ := c.Get("userId")
+		u := "yoshi0202"
+		g := grass.FindByGithub(ut.RegistUserID)
+		gr := grass.FindOrCreate(ut.RegistUserID, g)
+		if len(gr.CountDate) < 3 {
+			// usergrassess.Create(u.(string), gr)
+			c.String(http.StatusOK, "user not found")
+		} else {
+			usergrassess.Create(u, gr)
+			c.String(http.StatusOK, "success!")
+		}
+
+		// usergrassess.FindAllByUserId(u.(string))
 	})
 
 	router.GET("/github/callback", func(c *gin.Context) {
 		token := session.GetAccessToken(c.Query("code"))
-		session.FindByGithub("token " + token)
-		session.CreateLoginSession(token, c)
+		login := session.FindByGithub("token " + token)
+		oauthUser := users.GetUserIDByJSON(login)
+
+		// ユーザが存在していなければ作成
+		users.FindOrCreate(oauthUser)
+		g := grass.FindByGithub(oauthUser.Login)
+		grass.FindOrCreate(oauthUser.Login, g)
+		session.CreateLoginSession(oauthUser.Login, c)
+		// c.String(http.StatusOK, user.ToJSON())
 		c.Redirect(302, "/timeline")
 	})
 
 	// This handler will match /user/john but will not match /user/ or /user
+	// router.POST("/user/:name", func(c *gin.Context) {
 	router.GET("/user/:name", func(c *gin.Context) {
 		g := grass.FindByGithub(c.Param("name"))
 		grass.FindOrCreate(c.Param("name"), g)
@@ -85,6 +115,7 @@ func checkCookie() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sess := sessions.Default(c)
 		userID := sess.Get("userId")
+		fmt.Println(userID)
 		if userID == nil {
 			c.Redirect(302, "/login")
 			c.Abort()
