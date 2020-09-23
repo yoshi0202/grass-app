@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/yoshi0202/grass-app/app/src/dto"
 	"github.com/yoshi0202/grass-app/app/src/services"
@@ -15,6 +17,8 @@ import (
 func main() {
 	router := gin.Default()
 	router.LoadHTMLGlob("*.tmpl")
+	store := cookie.NewStore([]byte("secret"))
+	router.Use(sessions.Sessions("mysession", store))
 
 	// root
 	router.GET("/", func(c *gin.Context) {
@@ -35,18 +39,21 @@ func main() {
 		c.HTML(http.StatusOK, "login.tmpl", gin.H{})
 	})
 
-	router.DELETE("/logout", func(c *gin.Context) {
-		c.String(http.StatusOK, "logout")
+	// router.DELETE("/logout", checkCookie(), func(c *gin.Context) {
+	router.GET("/logout", checkCookie(), func(c *gin.Context) {
+		session.DeleteSession(c)
+		c.Redirect(302, "/")
 	})
 
-	router.GET("/timeline", func(c *gin.Context) {
+	router.GET("/timeline", checkCookie(), func(c *gin.Context) {
 		c.String(http.StatusOK, "timeline page")
 	})
 
 	router.GET("/github/callback", func(c *gin.Context) {
 		token := session.GetAccessToken(c.Query("code"))
 		session.FindByGithub("token " + token)
-		c.Redirect(301, "/timeline")
+		session.CreateLoginSession(token, c)
+		c.Redirect(302, "/timeline")
 	})
 
 	// This handler will match /user/john but will not match /user/ or /user
@@ -71,4 +78,19 @@ func main() {
 	// })
 
 	router.Run(":8080")
+
+}
+
+func checkCookie() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		sess := sessions.Default(c)
+		userID := sess.Get("userId")
+		if userID == nil {
+			c.Redirect(302, "/login")
+			c.Abort()
+			return
+		}
+		c.Set("userId", userID)
+		c.Next()
+	}
 }

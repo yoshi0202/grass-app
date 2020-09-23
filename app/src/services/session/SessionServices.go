@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 	"github.com/yoshi0202/grass-app/app/src/constant"
 	"github.com/yoshi0202/grass-app/app/src/dto"
 	"github.com/yoshi0202/grass-app/app/src/services"
@@ -34,4 +36,16 @@ func GetAccessToken(code string) string {
 	byteArray, _ := ioutil.ReadAll(resp.Body)
 	accessToken := services.CreateRegexp(`[&=]`).Split(string(byteArray), -1)[1]
 	return accessToken
+}
+
+func CreateLoginSession(userId string, c *gin.Context) {
+	sess := sessions.Default(c)
+	sess.Set("userId", userId)
+	sess.Save()
+}
+
+func DeleteSession(c *gin.Context) {
+	sess := sessions.Default(c)
+	sess.Clear()
+	sess.Save()
 }
