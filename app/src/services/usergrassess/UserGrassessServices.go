@@ -14,6 +14,11 @@ func Create(userID string, gr *dto.Grass) {
 	db := services.ConnectGorm()
 	db.Create(&ug)
 }
+
+func Delete(ug *dto.UserGrass) {
+	db := services.ConnectGorm()
+	db.Where("login_id = ?", ug.LoginID).Where("grass_id = ?", ug.GrassID).Delete(&ug)
+}
 func FindByUserId(param int) string {
 	ug := dto.NewUserGrass()
 	db := services.ConnectGorm()

@@ -53,14 +53,24 @@ func main() {
 		c.String(http.StatusOK, g.ToJSON())
 	})
 
+	// router.DELETE("/timeline/delete", checkCookie(), func(c *gin.Context) {
+	router.DELETE("/timeline/delete", func(c *gin.Context) {
+		ug := dto.NewUserGrass()
+		c.Bind(ug)
+		// ug.LoginID = c.Get("userId")
+		ug.LoginID = "yoshi0202"
+		usergrassess.Delete(ug)
+		c.String(http.StatusOK, "delete")
+	})
+
 	// router.POST("/timeline/regist", checkCookie(), func(c *gin.Context) {
 	router.POST("/timeline/regist", func(c *gin.Context) {
 		ut := dto.NewUserTimeline()
 		c.Bind(ut)
 		// u, _ := c.Get("userId")
 		u := "yoshi0202"
-		g := grass.FindByGithub(ut.RegistUserID)
-		gr := grass.FindOrCreate(ut.RegistUserID, g)
+		g := grass.FindByGithub(ut.GitHubID)
+		gr := grass.FindOrCreate(ut.GitHubID, g)
 		if len(gr.CountDate) < 3 {
 			// usergrassess.Create(u.(string), gr)
 			c.String(http.StatusOK, "user not found")
@@ -84,32 +94,17 @@ func main() {
 		c.Redirect(302, "/timeline")
 	})
 
-	// This handler will match /user/john but will not match /user/ or /user
-	// router.POST("/user/:name", func(c *gin.Context) {
 	router.GET("/user/:name", func(c *gin.Context) {
 		g := grass.FindByGithub(c.Param("name"))
 		grass.FindOrCreate(c.Param("name"), g)
 		c.String(http.StatusOK, g.ToJSON())
 	})
 
-	// However, this one will match /user/john/ and also /user/john/send
-	// If no other routers match /user/john, it will redirect to /user/john/
-	// router.GET("/user/:name/*action", func(c *gin.Context) {
-	// 	name := c.Param("name")
-	// 	action := c.Param("action")
-	// 	message := name + " is " + action
-	// 	c.String(http.StatusOK, message)
-	// })
-
-	// For each matched request Context will hold the route definition
-	// router.POST("/user/:name/*action", func(c *gin.Context) {
-	// 	c.FullPath() == "/user/:name/*action" // true
-	// })
-
 	router.Run(":8080")
 
 }
 
+// middleware
 func checkCookie() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sess := sessions.Default(c)

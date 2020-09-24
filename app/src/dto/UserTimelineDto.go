@@ -1,7 +1,7 @@
 package dto
 
 type UserTimeline struct {
-	RegistUserID string `json:"registUserID"`
+	GitHubID string `json:"gitHubID"`
 }
 
 func NewUserTimeline() *UserTimeline {
