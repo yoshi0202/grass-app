@@ -2,7 +2,6 @@ package usergrassess
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/yoshi0202/grass-app/app/src/dto"
 	"github.com/yoshi0202/grass-app/app/src/services"
@@ -35,10 +34,5 @@ func FindAllByUserId(param string) *dto.UserGrasses {
 	ug := dto.NewUserGrasses()
 	db := services.ConnectGorm()
 	db.Where("login_id = ?", param).Find(&ug)
-	for _, v := range *ug {
-		fmt.Println(v.LoginID)
-		fmt.Println(v.GrassID)
-	}
-
 	return ug
 }

@@ -48,8 +48,9 @@ func main() {
 
 	router.GET("/timeline", checkCookie(), func(c *gin.Context) {
 		u, _ := c.Get("userId")
-		usergrassess.FindAllByUserId(u.(string))
-		c.String(http.StatusOK, "timeline page")
+		ug := usergrassess.FindAllByUserId(u.(string))
+		g := grass.SearchByUserGrasses(ug)
+		c.String(http.StatusOK, g.ToJSON())
 	})
 
 	// router.POST("/timeline/regist", checkCookie(), func(c *gin.Context) {
@@ -67,8 +68,6 @@ func main() {
 			usergrassess.Create(u, gr)
 			c.String(http.StatusOK, "success!")
 		}
-
-		// usergrassess.FindAllByUserId(u.(string))
 	})
 
 	router.GET("/github/callback", func(c *gin.Context) {

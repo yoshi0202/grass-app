@@ -24,6 +24,17 @@ func FindAll() *dto.Grasses {
 	return g
 }
 
+func SearchByUserGrasses(ug *dto.UserGrasses) *dto.Grasses {
+	var arr []uint
+	for _, v := range *ug {
+		arr = append(arr, v.GrassID)
+	}
+	g := dto.NewGrasses()
+	db := services.ConnectGorm()
+	db.Where("id IN ?", arr).Find(&g)
+	return g
+}
+
 func FindOrCreate(githubId string, grass *dto.Grass) *dto.Grass {
 	if len(grass.CountDate) < 3 {
 		return grass
