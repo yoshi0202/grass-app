@@ -74,7 +74,7 @@ func CreateGrasses(gs *dto.Grass, apiRes [][]byte, name string) *dto.Grass {
 		g := dto.NewGitHub()
 		g.Count = strings.Split(strings.Split(string(v), " ")[7], "\"")[1]
 		g.Date = strings.Split(strings.Split(string(v), " ")[8], "\"")[1]
-		*gitHubs = append(*gitHubs, *g)
+		*gitHubs = append([]dto.GitHub{*g}, *gitHubs...)
 	}
 	gs.CountDate = gitHubs.ToJSON()
 	return gs
