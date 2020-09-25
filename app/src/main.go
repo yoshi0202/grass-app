@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -20,6 +21,10 @@ func main() {
 	router.LoadHTMLGlob("*.tmpl")
 	store := cookie.NewStore([]byte("secret"))
 	router.Use(sessions.Sessions("mysession", store))
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"http://localhost:3000"}
+	config.AllowCredentials = true
+	router.Use(cors.New(config))
 
 	// root
 	router.GET("/", func(c *gin.Context) {
@@ -43,7 +48,7 @@ func main() {
 	// router.DELETE("/logout", checkCookie(), func(c *gin.Context) {
 	router.GET("/logout", checkCookie(), func(c *gin.Context) {
 		session.DeleteSession(c)
-		c.Redirect(302, "/")
+		c.Redirect(302, "http://localhost:3000/")
 	})
 
 	router.GET("/timeline", checkCookie(), func(c *gin.Context) {
@@ -53,29 +58,25 @@ func main() {
 		c.String(http.StatusOK, g.ToJSON())
 	})
 
-	// router.DELETE("/timeline/delete", checkCookie(), func(c *gin.Context) {
-	router.DELETE("/timeline/delete", func(c *gin.Context) {
+	router.PUT("/timeline/delete", checkCookie(), func(c *gin.Context) {
 		ug := dto.NewUserGrass()
 		c.Bind(ug)
-		// ug.LoginID = c.Get("userId")
-		ug.LoginID = "yoshi0202"
+		ui, _ := c.Get("userId")
+		ug.LoginID = ui.(string)
 		usergrassess.Delete(ug)
 		c.String(http.StatusOK, "delete")
 	})
 
-	// router.POST("/timeline/regist", checkCookie(), func(c *gin.Context) {
-	router.POST("/timeline/regist", func(c *gin.Context) {
+	router.POST("/timeline/regist", checkCookie(), func(c *gin.Context) {
 		ut := dto.NewUserTimeline()
 		c.Bind(ut)
-		// u, _ := c.Get("userId")
-		u := "yoshi0202"
+		u, _ := c.Get("userId")
 		g := grass.FindByGithub(ut.GitHubID)
 		gr := grass.FindOrCreate(ut.GitHubID, g)
 		if len(gr.CountDate) < 3 {
-			// usergrassess.Create(u.(string), gr)
 			c.String(http.StatusOK, "user not found")
 		} else {
-			usergrassess.Create(u, gr)
+			usergrassess.Create(u.(string), gr)
 			c.String(http.StatusOK, "success!")
 		}
 	})
@@ -91,7 +92,7 @@ func main() {
 		grass.FindOrCreate(oauthUser.Login, g)
 		session.CreateLoginSession(oauthUser.Login, c)
 		// c.String(http.StatusOK, user.ToJSON())
-		c.Redirect(302, "/timeline")
+		c.Redirect(302, "http://localhost:3000/timeline")
 	})
 
 	router.GET("/user/:name", func(c *gin.Context) {
@@ -111,7 +112,8 @@ func checkCookie() gin.HandlerFunc {
 		userID := sess.Get("userId")
 		fmt.Println(userID)
 		if userID == nil {
-			c.Redirect(302, "/login")
+			// c.Redirect(302, "http://localhost:3000/login")
+			c.String(http.StatusOK, "redirect")
 			c.Abort()
 			return
 		}
