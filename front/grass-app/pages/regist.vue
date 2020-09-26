@@ -13,7 +13,7 @@
                 outlined
                 v-model="gitHubID"
               ></v-text-field>
-              <v-btn text small @click="regist()">Register</v-btn>
+              <v-btn text small @click="regist()" outlined>Register</v-btn>
             </v-container>
           </v-card>
         </v-container>
@@ -24,23 +24,23 @@
 
 <script>
 export default {
-  data: function() {
+  data: function () {
     return {
       ip: "aiueo",
-      gitHubID: ""
+      gitHubID: "",
     };
   },
-  mounted: async function() {},
+  mounted: async function () {},
   methods: {
     async regist() {
       console.log(this.gitHubID);
       const registResult = await this.$axios.$post(
         "http://localhost:8080/timeline/regist",
         {
-          gitHubID: this.gitHubID
+          gitHubID: this.gitHubID,
         },
         {
-          withCredentials: true
+          withCredentials: true,
         }
       );
       if (registResult === "redirect") {
@@ -51,7 +51,7 @@ export default {
         this.$router.push("/timeline");
         return;
       }
-    }
-  }
+    },
+  },
 };
 </script>

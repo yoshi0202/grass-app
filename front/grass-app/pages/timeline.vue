@@ -2,28 +2,32 @@
   <v-container>
     <v-card flat tile class="text-h1 d-flex justify-center">Timeline</v-card>
     <v-container text-center>
-      <v-row>
-        <v-col sm="10" offset-sm="1">
-          <v-container v-for="t of timelineArr" :key="t.id" text-center>
-            <no-ssr placeholder="Loading...">
-              <v-avatar>
-                <img
-                  :src="'https://github.com/' + t.githubId + '.png'"
-                  :alt="t.githubId"
-                />
-              </v-avatar>
-              <a :href="'https://github.com/' + t.githubId" target="_blank">
-                {{ t.githubId }}
-              </a>
-              <v-btn text small @click="destroy(t.id)">delete</v-btn>
-              <v-container text-center>
-                <github-lawn
-                  :data="t.count"
-                  :unit="'contributions'"
-                ></github-lawn>
+      <v-container text-center>
+        <v-row>
+          <v-col cols="10" offset="1">
+            <v-card flat outlined>
+              <v-container text-h4>YourGrasses👀</v-container>
+              <v-container>
+                <no-ssr placeholder="Loading...">
+                  <Grass :data="ownGrass" :isOwn="true" />
+                </no-ssr>
               </v-container>
-            </no-ssr>
-          </v-container>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-container>
+    <v-container text-center>
+      <v-row>
+        <v-col cols="10" offset="1">
+          <v-card flat outlined>
+            <v-container text-h4>StrongerGrasses💪</v-container>
+            <v-container v-for="t of timelineArr" :key="t.id" text-center>
+              <no-ssr placeholder="Loading...">
+                <Grass :data="t" :isOwn="false" />
+              </no-ssr>
+            </v-container>
+          </v-card>
         </v-col>
       </v-row>
     </v-container>
@@ -32,25 +36,33 @@
 
 <script>
 import GithubLawn from "vue-github-lawn";
+import Grass from "../components/Grass";
 
 export default {
   components: {
-    GithubLawn
+    GithubLawn,
+    Grass,
   },
-  data: function() {
+  data: function () {
     return {
-      timelineArr: []
+      timelineArr: [],
+      ownGrass: {
+        count: [],
+        githubId: "",
+        id: "",
+      },
     };
   },
-  mounted: function() {
+  mounted: function () {
     this.initTimeline();
+    this.createMyGrass();
   },
   methods: {
     async destroy(grassId) {
       await this.$axios.$put(
         "http://localhost:8080/timeline/delete",
         {
-          grassID: grassId
+          grassID: grassId,
         },
         { withCredentials: true }
       );
@@ -60,14 +72,13 @@ export default {
       const timeline = await this.$axios.$get(
         "http://localhost:8080/timeline",
         {
-          withCredentials: true
+          withCredentials: true,
         }
       );
       if (timeline === "redirect") {
         this.$router.push("/login");
         return;
       }
-      const arr = [];
       for (const t of timeline) {
         let obj = {};
         obj.githubId = t.githubId;
@@ -76,16 +87,24 @@ export default {
         for (const c of t.countDate) {
           obj.count.push(c.count);
         }
-        arr.push(obj);
+        this.timelineArr.push(obj);
       }
-      this.timelineArr = arr;
-    }
-  }
+    },
+    async createMyGrass() {
+      const own = await this.$axios.$get("http://localhost:8080/owngrass", {
+        withCredentials: true,
+      });
+      if (own === "redirect") {
+        this.$router.push("/login");
+        return;
+      }
+      this.ownGrass.githubId = own.githubId;
+      this.ownGrass.id = own.id;
+      for (const c of own.countDate) {
+        this.ownGrass.count.push(c.count);
+      }
+    },
+  },
 };
 </script>
 
-<style scoped>
-.github-lawn {
-  display: inline-block;
-}
-</style>
