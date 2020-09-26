@@ -17,6 +17,13 @@ func Find(param int) *dto.Grass {
 	return g
 }
 
+func FindByGitHubID(param string) *dto.Grass {
+	g := dto.NewGrass()
+	db := services.ConnectGorm()
+	db.Where("git_hub_id = ?", param).Find(&g)
+	return g
+}
+
 func FindAll() *dto.Grasses {
 	g := dto.NewGrasses()
 	db := services.ConnectGorm()

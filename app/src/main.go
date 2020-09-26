@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
@@ -30,6 +29,12 @@ func main() {
 	router.GET("/", func(c *gin.Context) {
 		user := users.FindAll()
 		c.String(http.StatusOK, string(user.ToJSON()))
+	})
+
+	router.GET("/owngrass", checkCookie(), func(c *gin.Context) {
+		u, _ := c.Get("userId")
+		grass := grass.FindByGitHubID(u.(string))
+		c.String(http.StatusOK, grass.ToJSON())
 	})
 
 	router.GET("/migrate", func(c *gin.Context) {
@@ -110,7 +115,6 @@ func checkCookie() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sess := sessions.Default(c)
 		userID := sess.Get("userId")
-		fmt.Println(userID)
 		if userID == nil {
 			// c.Redirect(302, "http://localhost:3000/login")
 			c.String(http.StatusOK, "redirect")
