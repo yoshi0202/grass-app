@@ -22,6 +22,8 @@
     "vue-github-lawn": "0.0.4"
   },
   "devDependencies": {
+    "@mdi/font": "^5.6.55",
+    "@mdi/js": "^5.6.55",
     "@nuxtjs/vuetify": "^1.11.2",
     "@vue/test-utils": "^1.1.0",
     "babel-core": "7.0.0-bridge.0",
