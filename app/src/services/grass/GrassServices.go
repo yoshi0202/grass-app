@@ -1,6 +1,7 @@
 package grass
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -14,6 +15,12 @@ func Find(param int) *dto.Grass {
 	g := dto.NewGrass()
 	db := services.ConnectGorm()
 	db.First(&g, param)
+	return g
+}
+
+func Update(g *dto.Grass) *dto.Grass {
+	db := services.ConnectGorm()
+	db.Model(&dto.Grass{}).Where("git_hub_id = ?", g.GitHubID).Update("count_date", g.CountDate)
 	return g
 }
 
@@ -77,6 +84,7 @@ func GetGrass(param string) []byte {
 
 func CreateGrasses(gs *dto.Grass, apiRes [][]byte, name string) *dto.Grass {
 	gitHubs := dto.NewGitHubs()
+	fmt.Println(len(apiRes))
 	for _, v := range apiRes {
 		g := dto.NewGitHub()
 		g.Count = strings.Split(strings.Split(string(v), " ")[7], "\"")[1]
@@ -85,4 +93,12 @@ func CreateGrasses(gs *dto.Grass, apiRes [][]byte, name string) *dto.Grass {
 	}
 	gs.CountDate = gitHubs.ToJSON()
 	return gs
+}
+
+func UpdateGrasses() {
+	grasses := FindAll()
+	for _, v := range *grasses {
+		newGrass := FindByGithub(v.GitHubID)
+		Update(newGrass)
+	}
 }

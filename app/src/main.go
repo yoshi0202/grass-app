@@ -106,6 +106,11 @@ func main() {
 		c.String(http.StatusOK, g.ToJSON())
 	})
 
+	router.GET("/grass/update", func(c *gin.Context) {
+		grass.UpdateGrasses()
+		c.String(http.StatusOK, "grasses update")
+	})
+
 	router.Run(":8080")
 
 }
