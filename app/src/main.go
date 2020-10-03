@@ -31,6 +31,12 @@ func main() {
 		c.String(http.StatusOK, string(user.ToJSON()))
 	})
 
+	router.GET("/user", checkCookie(), func(c *gin.Context) {
+		u, _ := c.Get("userId")
+		user := users.FindByGithubID(u.(string))
+		c.String(http.StatusOK, string(user.ToJSON()))
+	})
+
 	router.GET("/owngrass", checkCookie(), func(c *gin.Context) {
 		u, _ := c.Get("userId")
 		grass := grass.FindByGitHubID(u.(string))

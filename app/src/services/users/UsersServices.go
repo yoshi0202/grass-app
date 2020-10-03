@@ -21,6 +21,13 @@ func FindAll() *dto.Users {
 	return us
 }
 
+func FindByGithubID(param string) *dto.User {
+	u := dto.NewUser()
+	db := services.ConnectGorm()
+	db.Where(dto.User{Login: param}).Find(&u)
+	return u
+}
+
 func FindOrCreate(user *dto.OAuthUser) *dto.User {
 	us := dto.NewUser()
 	db := services.ConnectGorm()
