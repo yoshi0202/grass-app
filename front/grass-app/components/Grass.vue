@@ -1,7 +1,7 @@
 <template>
-  <v-container text-center>
+  <v-container text-center px-9>
     <v-row>
-      <v-col cols="6" offset="3">
+      <v-col cols="8" offset="2">
         <v-container my-0 py-0 d-flex justify-space-around>
           <v-container text-left my-0 py-0>
             <v-avatar class="mr-5">
@@ -35,14 +35,14 @@ import { mdiGithub, mdiCloseCircleOutline } from "@mdi/js";
 export default {
   props: ["data", "isOwn"],
   components: {
-    GithubLawn
+    GithubLawn,
   },
-  data: function() {
+  data: function () {
     return {
       mdiGithub: mdiGithub,
-      mdiCloseCircleOutline: mdiCloseCircleOutline
+      mdiCloseCircleOutline: mdiCloseCircleOutline,
     };
-  }
+  },
 };
 </script>
 

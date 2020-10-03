@@ -1,44 +1,51 @@
 <template>
   <v-container>
-    <v-card flat tile class="text-h1 d-flex justify-center">Timeline</v-card>
-    <v-container text-center>
-      <v-container text-center>
-        <v-row>
-          <v-col cols="10" offset="1">
-            <v-card flat outlined>
-              <v-container text-h4 mb-0 pb-0
-                >あなたの<span class="text-h3 green--text"
-                  >草🌱</span
-                ></v-container
-              >
-              <v-container>
-                <no-ssr placeholder="Loading...">
-                  <Grass :data="ownGrass" :isOwn="true" />
-                </no-ssr>
-              </v-container>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-container>
-    <v-container text-center>
-      <v-row>
-        <v-col cols="10" offset="1">
-          <v-card flat outlined>
-            <v-container text-h4 mb-0 pb-0
-              >強い人たちの<span class="text-h3 green--text"
-                >草💪</span
-              ></v-container
-            >
-            <v-container v-for="t of timelineArr" :key="t.id" text-center>
-              <no-ssr placeholder="Loading...">
-                <Grass :data="t" :isOwn="false" />
-              </no-ssr>
-            </v-container>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+    <v-row>
+      <v-col cols="8" offset="2">
+        <v-card flat tile class="text-h1 d-flex justify-center"
+          >Timeline</v-card
+        >
+        <v-container text-center>
+          <v-container text-center>
+            <p class="text-h5">強い人達のContributionを監視しよう！！</p>
+            <v-row>
+              <v-col cols="12">
+                <v-card flat outlined>
+                  <v-container text-h4 mb-0 pb-0
+                    >あなたの<span class="text-h3 green--text"
+                      >草🌱</span
+                    ></v-container
+                  >
+                  <v-container>
+                    <no-ssr placeholder="Loading...">
+                      <Grass :data="ownGrass" :isOwn="true" />
+                    </no-ssr>
+                  </v-container>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-container>
+        <v-container text-center>
+          <v-row>
+            <v-col cols="12">
+              <v-card flat outlined>
+                <v-container text-h4 mb-0 pb-0
+                  >強い人たちの<span class="text-h3 green--text"
+                    >草💪</span
+                  ></v-container
+                >
+                <v-container v-for="t of timelineArr" :key="t.id" text-center>
+                  <no-ssr placeholder="Loading...">
+                    <Grass :data="t" :isOwn="false" />
+                  </no-ssr>
+                </v-container>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
