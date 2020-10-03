@@ -7,7 +7,7 @@
         >
         <v-container text-center>
           <v-container text-center>
-            <p class="text-h5">強い人達のContributionを監視しよう！！</p>
+            <p class="text-h5">強い人たちのContributionを監視しよう！！</p>
             <v-row>
               <v-col cols="12">
                 <v-card flat outlined>
