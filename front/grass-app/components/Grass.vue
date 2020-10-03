@@ -24,7 +24,7 @@
       </v-col>
     </v-row>
     <v-container text-center my-0 py-0>
-      <github-lawn :data="data.count" :unit="'contributions'"></github-lawn>
+      <github-lawn :data="data.count" :unit="'contribution '"></github-lawn>
     </v-container>
   </v-container>
 </template>
