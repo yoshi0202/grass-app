@@ -6,7 +6,11 @@
         <v-row>
           <v-col cols="10" offset="1">
             <v-card flat outlined>
-              <v-container text-h4>YourGrasses👀</v-container>
+              <v-container text-h4 mb-0 pb-0
+                >あなたの<span class="text-h3 green--text"
+                  >草🌱</span
+                ></v-container
+              >
               <v-container>
                 <no-ssr placeholder="Loading...">
                   <Grass :data="ownGrass" :isOwn="true" />
@@ -21,7 +25,11 @@
       <v-row>
         <v-col cols="10" offset="1">
           <v-card flat outlined>
-            <v-container text-h4>StrongerGrasses💪</v-container>
+            <v-container text-h4 mb-0 pb-0
+              >強い人たちの<span class="text-h3 green--text"
+                >草💪</span
+              ></v-container
+            >
             <v-container v-for="t of timelineArr" :key="t.id" text-center>
               <no-ssr placeholder="Loading...">
                 <Grass :data="t" :isOwn="false" />
